@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+<nav class="mt-10 ml-20">
+  <ul class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{path('home')}}">Accueil</a></li>
+    <li class="breadcrumb-item"><a href="{{path('series')}}">Séries de comics</a></li>
+    <li class="breadcrumb-item" aria-current="page"><a href="{{ path('comics', {series_id : serie.id }) }}">{{ serie.title }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="{{ path('comic', {comic_id : comic.id }) }}">{{ comic.title ? comic.title : comic.name }}</a></li>
+  </ul>
+</nav>
+<div class="container-fluid">
+<div id="zoom-viewport" class="flipbook-viewport overflow-scroll w-full" style="height: 750px;">
+    <div id="flipbook" class="m-auto">
+        {% for page in pages %}
+            {% if loop.index == loop.first or loop.index == loop.last %}
+                <div class="hard {{double[loop.index0] == true ? 'double' : ''}}" >
+            {% else %}
+                {% if loop.index % 2 == 1 and double[loop.index0] == true %}
+                    <div><img src="{{asset('tmp/blank.jpg')}}" class="page"/></div>
+                    <div class="{{double[loop.index0] == true ? 'double' : ''}}">
+                {% else %}
+                    <div class="{{double[loop.index0] == true ? 'double' : ''}}">
+                {% endif %}
+            {% endif %}
+            <img src="{{asset(page)}}" class="page"/></div>
+        {% endfor %}
+    </div>
+    <input id="comicId" type="hidden" value="{{comic.id}}" />
+    </div>
+    <div class="progress-group m-auto w-half bottom-centered">
+        <div class="progress">
+            <div class="progress-bar progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <span class="progress-group-label">{{defaultPage is defined ? defaultPage : 0}} / {{totalPages}}</span>
+    </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+        <script type="text/javascript">
+            $("#flipbook .double").scissor();
+        	$("#flipbook").turn({
+                display: 'single',
+                autoCenter: true,
+        		width: '500px',
+        		height: '750px',
+                top: '25px',
+                page: "{{ defaultPage ? defaultPage : 1}}",
+                when: {
+                    turning: function(event, page, pageObject){
+                        var pages = $('#flipbook').turn('pages');
+                        var progress = (page / (pages - 1) * 100);
+                        document.querySelector('.progress .progress-bar').style.width = progress + "%";
+                        document.querySelector('.progress-group .progress-group-label').innerHTML = page + " / " + (pages - 1);
+                    }
+                }
+        	});
+            $(function(){
+                var pages = $('#flipbook').turn('pages');
+                var page = $('#flipbook').turn('page');
+                var progress = (page / (pages - 1) * 100);
+                document.querySelector('.progress .progress-bar').style.width = progress + "%";
+                document.querySelector('.progress-group .progress-group-label').innerHTML = page +" /" + (pages - 1);
+                $('.flipbook-viewport').zoom({
+            		flipbook: $('#flipbook'),
+            		max: 3,
+            		when: {
+            			doubleTap: function(event) {
+            				if ($(this).zoom('value')==1) {
+            					$('#flipbook').
+            						removeClass('animated').
+            						addClass('zoom-in');
+            					$(this).zoom('zoomIn', event);
+            				} else {
+            					$(this).zoom('zoomOut');
+            				}
+            			},
+                        zoomIn: function () {
+                            $('#flipbook').addClass('zoom-in');
+                            if (!window.escTip && !$.isTouch) {
+                                escTip = true;
+                                $('<div />', {'class': 'esc'}).
+                                    html('<div>Press ESC to exit</div>').
+                                        appendTo($('body')).
+                                        delay(2000).
+                                        animate({opacity:0}, 500, function() {
+                                            $(this).remove();
+                                        });
+                            }
+                        },
+                        zoomOut: function () {
+                            setTimeout(function(){
+                                $('#flipbook').addClass('animated').removeClass('zoom-in');
+                                resizeViewport();
+                            }, 0);
+                        },
+            			swipeLeft: function() {
+            				$('#flipbook').turn('next');
+            			},
+            			swipeRight: function() {
+            				$('#flipbook').turn('previous');
+            			}
+            		}
+            	});
+            });
+            function resizeViewport() {
+            	var width = $(window).width(),
+            		height = $(window).height(),
+            		options = $('#flipbook').turn('options');
+            	$('#flipbook').removeClass('animated');
+
+            	$('#flipbook-viewport').css({
+            		width: width,
+            		height: height
+            	}).
+            	zoom('resize');
+            	if ($('#flipbook').turn('zoom')==1) {
+            		var bound = calculateBound({
+            			width: options.width,
+            			height: options.height,
+            			boundWidth: Math.min(options.width, width),
+            			boundHeight: Math.min(options.height, height)
+            		});
+            		if (bound.width%2!==0)
+            			bound.width-=1;
+            		if (bound.width!=$('#flipbook').width() || bound.height!=$('#flipbook').height()) {
+            			$('#flipbook').turn('size', bound.width, bound.height);
+            			if ($('#flipbook').turn('page')==1)
+            				$('#flipbook').turn('peel', 'br');
+            		}
+
+            		$('#flipbook').css({top: -bound.height/2, left: -bound.width/2});
+            	}
+
+            	$('#flipbook').addClass('animated');
+
+            }
+            $(function(){
+                window.addEventListener('beforeunload', (event) => {
+                  event.preventDefault();
+                  var AjaxUrl = '{{path("savePage", {page_id: 'page_id', comic_id: 'comic_id'})}}';
+                  var page = $('#flipbook').turn('page');
+                  var comicId = $('#comicId').val();
+                  AjaxUrl = AjaxUrl.replace('page_id', page);
+                  AjaxUrl = AjaxUrl.replace('comic_id', comicId);
+                  $.ajax({url: AjaxUrl, success: function(result){
+
+                    }});
+                });
+            });
+        </script>
+{% endblock %}

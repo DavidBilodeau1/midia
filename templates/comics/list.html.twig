@@ -1,0 +1,89 @@
+{% extends 'comics/index.html.twig' %}
+
+{% block content %}
+    <nav class="mt-10 ml-20">
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{path('home')}}">Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{{path('series')}}">Séries de comics</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><a href="{{ path('series', {series_id : serie.id }) }}">{{ serie.title }}</a></li>
+      </ul>
+    </nav>
+    <div class="container-fluid">
+            {% for books in comics|batch(3, '') %}
+                    <div class="row">
+                        {% for comic in books %}
+                        <div class="col-6 col-sm-4 col-md-4 col-lg-4">
+                        {% if comic != "" %}
+                            <div class="dropdown dropleft with-arrow options position-absolute">
+                                <a href="#" onclick="(event) => {event.stopPropagation();}" data-toggle="dropdown" id="avatar-popover-toggle" class=" btn btn-square btn-primary rounded-circle" role="button">
+                                 <i class="fal fa-ellipsis-h"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-center" aria-labelledby="avatar-popover-toggle">
+                                    <a href="{{path('comic',{comic_id: comic.id, page: '0'})}}" class="btn btn-transparent btn-correct-assoc" data-comic-id="{{comic.id}}" role="button">Lire depuis le début</a>
+                                </div>
+                            </div>
+                              <div class="m-20" onclick="window.location.href = '{{comic ? path('comic',{comic_id: comic.id}) : '' }}'">
+                                  {% if comic.image is defined or serie.image is defined %}
+                                  <img src="{{ comic.image ? comic.image : serie.image }}" class="w-full"/>
+                                  {% endif %}
+                                  <p class="mt-10 text-center h-50 overflow-hidden">{{ (comic.title is defined and comic.title != "") ? comic.title : comic.name }}</p>
+                                  <div class="progress-group m-auto w-full">
+                                      <div class="progress">
+                                          <div class="progress-bar progress-bar-animated" role="progressbar" style="width:{{(comic.progress is defined and comic.totalPages > 0 ? ((comic.progress / comic.totalPages) * 100) : 0)}}%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                      <span class="progress-group-label">{{ comic.progress is defined ? comic.progress : 0 }} / {{ comic.totalPages > 0 ? comic.totalPages + 1 : 'X' }}</span>
+                                  </div>
+                              </div>
+                      {% endif %}
+                      </div>
+                        {% endfor %}
+                    </div>
+            {% endfor %}
+    </div>
+    {% block pagination %}
+        {% if maxPages > 1 %}
+            <div class="d-flex  mt-auto mb-20">
+                <ul class="pagination pagination-sm m-auto">
+                    <li class="page-item {{ page == 1 ? 'disabled' }}">
+                        <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: page-1 < 1 ? 1 : page-1}) }}"><i class="fat fa-angle-left" aria-hidden="true"></i></a>
+                    </li>
+                {% if maxPages > 10 %}
+                    {% if page - 5 > 1 %}
+                        <li class="page-item {{ page == 1 ? 'active' }}">
+                            <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: 1}) }}">{{ 1 }}</a>
+                        </li>
+                        <li class="page-item ellipsis"></li>
+                    {% endif %}
+                    {% if page > 1 %}
+                        {% for i in (page - 5 > 1 ? page - 5 : 1)..(page-1) %}
+                            <li class="page-item {{ page == i ? 'active' }}">
+                                <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: i}) }}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                        {% for i in page..(page + 5 > maxPages ? maxPages : (page + 5)) %}
+                            <li class="page-item {{ page == i ? 'active' }}">
+                                <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: i}) }}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    {% if page + 5 < maxPages %}
+                        <li class="page-item ellipsis"></li>
+                        <li class="page-item {{ page == maxPages ? 'active' }}">
+                            <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: maxPages}) }}">{{ maxPages }}</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% for i in 1..maxPages %}
+                        <li class="page-item {{ page == i ? 'active' }}">
+                            <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: i}) }}">{{ i }}</a>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+                    <li class="page-item {{ page == maxPages ? 'disabled' }}">
+                        <a class="page-link" href="{{ path(currentPath, {series_id: serie.id, page: page+1 <= maxPages ? page+1 : page}) }}"><i class="fat fa-angle-right" aria-hidden="true"></i></a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

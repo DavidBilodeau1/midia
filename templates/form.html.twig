@@ -1,0 +1,14 @@
+{# templates/security/registration.html.twig #}
+{% extends 'base.html.twig' %}
+{% block content %}
+<div class="container-fluid w-500 mw-full m-auto">
+ {{ form_start(form) }}
+ {% if form.vars.errors|length %}
+ <div class="alert alert-danger form-error" role="alert">
+     {{ form_errors(form) }}
+</div>
+{% endif %}
+{{ form_widget(form) }}
+ {{ form_end(form) }}
+</div>
+{% endblock %}

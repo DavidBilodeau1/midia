@@ -2,11 +2,134 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
         <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <link href="{{ asset('lib/halfmoon-1.1.1/css/halfmoon.css') }}" rel="stylesheet" />
+            <link href="{{ asset('lib/halfmoon-1.1.1/css/halfmoon.min.css') }}" rel="stylesheet" />
+            <link href="{{ asset('lib/halfmoon-1.1.1/css/halfmoon-variables.min.css') }}" rel="stylesheet" />
+            <link href="{{ asset('lib/halfmoon-1.1.1/css/halfmoon-variables.css') }}" rel="stylesheet" />
+            <link href="{{ asset('lib/fontawesome/css/all.css') }}" rel="stylesheet">
+            <link href="{{ asset('lib/fontawesome/css/fontawesome.css') }}" rel="stylesheet">
+            <link href="{{ asset('lib/fontawesome/css/brands.css') }}" rel="stylesheet">
+            <link href="{{ asset('lib/fontawesome/css/solid.css') }}" rel="stylesheet">
+            <link rel="stylesheet" href="{{ asset('css/main.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/books.css') }}" />
+        {% endblock %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+    <body class="dark-mode with-custom-webkit-scrollbars with-custom-css-scrollbars" data-sidebar-shortcut-enabled="true" data-dm-shortcut-enabled="true">
+        {% block body %}
+            <div id="page-wrapper" class="page-wrapper with-navbar with-sidebar with-transitions" data-sidebar-type="overlayed-sm-and-down" data-sidebar-hidden="hidden">
+                {% block navbar %}
+                <nav class="navbar">
+                    <div class="navbar-content">
+                    <button class="btn btn-action" type="button" onclick="halfmoon.toggleSidebar()">
+                      <i class="fa fa-bars" aria-hidden="true"></i>
+                      <span class="sr-only">Toggle sidebar</span> <!-- sr-only = show only on screen readers -->
+                    </button>
+                    </div>
+                    <!-- Navbar brand -->
+                    <a href="{{ path('home') }}" class="sidebar-brand">
+                        <i class="fad fa-alien-monster mr-5"></i>
+                        MiDia
+                    </a>
+                    <div class="navbar-content ml-auto">
+                        <div class="online-users">
+                            {{ render(controller('App\\Controller\\SecurityController::onlineUsers' )) }}
+                        </div>
+                        <button class="btn btn-square" type="button" onclick="halfmoon.toggleDarkMode()">
+                          <i class="fad fa-moon" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </nav>
+                {% endblock %}
+                {% block sidebar %}
+                        <div class="sidebar-overlay" onclick="halfmoon.toggleSidebar()"></div>
+                        <div class="sidebar" id="sidebar">
+                            <div class="sidebar-menu">
+                                <div class="sidebar-content">
+                                  <input type="text" class="form-control" placeholder="Rechercher">
+                                  <div class="mt-10 font-size-12">
+                                    Appuyez <kbd>#</kbd> pour commencer
+                                  </div>
+                                </div>
+                                <a class="sidebar-link sidebar-link-with-icon " href="{{ path('home') }}"><span class="sidebar-icon"><i class="fad fa-house"></i></span>Accueil</a>
+                                <h5 class="sidebar-title">Lecture</h5>
+                                <div class="sidebar-divider"></div>
+                                <a class="sidebar-link sidebar-link-with-icon " href="{{ path('books') }}"><span class="sidebar-icon"><i class="fad fa-book"></i></span>Livres</a>
+                                <a class="sidebar-link sidebar-link-with-icon " href="{{ path('series') }}"><span class="sidebar-icon"><i class="fad fa-book-open"></i></span>Comics</a>
+                                <h5 class="sidebar-title">Audio</h5>
+                                <div class="sidebar-divider"></div>
+                                <a class="sidebar-link sidebar-link-with-icon " href="#"><span class="sidebar-icon"><i class="fad fa-list-music"></i></span>Musique</a>
+                                <a class="sidebar-link sidebar-link-with-icon " href="#"><span class="sidebar-icon"><i class="fad fa-comment-alt-music"></i></span>Livres audio</a>
+                                <a class="sidebar-link sidebar-link-with-icon " href="#"><span class="sidebar-icon"><i class="fad fa-podcast"></i></span>Podcasts</a>
+                                <h5 class="sidebar-title">Vidéo</h5>
+                                <div class="sidebar-divider"></div>
+                                <a class="sidebar-link sidebar-link-with-icon " href="#"><span class="sidebar-icon"><i class="fad fa-tv-retro"></i></span>Séries</a>
+                                <a class="sidebar-link sidebar-link-with-icon " href="#"><span class="sidebar-icon"><i class="fad fa-film"></i></span>Films</a>
+                            </div>
+                        </div>
+                {% endblock %}
+                <!-- Content wrapper -->
+                <div class="content-wrapper d-flex flex-column">
+                    {% block content %}
+                        {% block pagination %}
+                            {% if maxPages is defined and maxPages > 1 %}
+                                <div class="d-flex  mt-auto mb-20">
+                                    <ul class="pagination pagination-sm m-auto">
+                                        <li class="page-item {{ page == 1 ? 'disabled' }}">
+                                            <a class="page-link" href="{{ path(currentPath, {page: page-1 < 1 ? 1 : page-1}) }}"><i class="fat fa-angle-left" aria-hidden="true"></i></a>
+                                        </li>
+                                    {% if maxPages > 10 %}
+                                        {% if page - 5 > 1 %}
+                                            <li class="page-item {{ page == 1 ? 'active' }}">
+                                                <a class="page-link" href="{{ path(currentPath, {page: 1}) }}">{{ 1 }}</a>
+                                            </li>
+                                            <li class="page-item ellipsis"></li>
+                                        {% endif %}
+                                        {% if page > 1 %}
+                                            {% for i in (page - 5 > 1 ? page - 5 : 1)..(page-1) %}
+                                                <li class="page-item {{ page == i ? 'active' }}">
+                                                    <a class="page-link" href="{{ path(currentPath, {page: i}) }}">{{ i }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        {% endif %}
+                                            {% for i in page..(page + 5 > maxPages ? maxPages : (page + 5)) %}
+                                                <li class="page-item {{ page == i ? 'active' }}">
+                                                    <a class="page-link" href="{{ path(currentPath, {page: i}) }}">{{ i }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        {% if page + 5 < maxPages %}
+                                            <li class="page-item ellipsis"></li>
+                                            <li class="page-item {{ page == maxPages ? 'active' }}">
+                                                <a class="page-link" href="{{ path(currentPath, {page: maxPages}) }}">{{ maxPages }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        {% for i in 1..maxPages %}
+                                            <li class="page-item {{ page == i ? 'active' }}">
+                                                <a class="page-link" href="{{ path(currentPath, {page: i}) }}">{{ i }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                        <li class="page-item {{ page == maxPages ? 'disabled' }}">
+                                            <a class="page-link" href="{{ path(currentPath, {page: page+1 <= maxPages ? page+1 : page}) }}"><i class="fat fa-angle-right" aria-hidden="true"></i></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+        {% block javascripts %}
+        <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="{{ asset('lib/turnjs4/lib/turn.js') }}"></script>
+        <script src="{{ asset('lib/turnjs4/lib/scissor.js') }}"></script>
+        <script src="{{ asset('lib/turnjs4/lib/zoom.js') }}"></script>
+        <script src="{{ asset('lib/halfmoon-1.1.1/js/halfmoon.min.js') }}"></script>
+        <script src="{{ asset('js/comic.js') }}"></script>
+        {% endblock %}
     </body>
 </html>

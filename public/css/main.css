@@ -1,0 +1,142 @@
+.centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: -10px;
+  transition: margin 100ms ease-in;
+}
+.tooltip:hover{
+  margin-right: 10px;
+  margin-left: 0px;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  top: 4vh;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 500ms;
+}
+
+.tooltip:hover .tooltiptext {
+  opacity: 1;
+}
+.tile{
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: 35px;
+    height: 35px;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border-radius: 20px;
+    background-color: #c92946;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    margin-right: 20px;
+    border: none;
+}
+.tile:focus{
+    border-radius: 50%;
+}
+.card[onclick]{
+    cursor: pointer;
+}
+.page {
+    width: 100%;
+    height: 100%;
+}
+.double{
+    width: 200%;
+    height: 100%;
+}
+.odd .double{
+    margin-left: -540px !important;
+}
+.options{
+    right: 3rem;
+    top: 3rem;
+    z-index: 2;
+}
+.bottom-centered{
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 150px;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    transform: rotate(270deg);
+    margin-left: auto;
+    margin-right: -32px;
+    position: absolute;
+    right: 0;
+    top: 20%;
+    z-index: 50;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--blue-color);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--blue-color);
+  cursor: pointer;
+}
+#zoom-viewport{
+    width: inherit;
+    height: -webkit-fill-available;
+}
+.content-wrapper.fullscreen{
+    z-index: 45;
+    height: 100%;
+    top: 0;
+}
+@media screen and (max-width: 768px)  {
+    .row.d-sm-and-down-flex{
+        flex-direction: column;
+    }
+}

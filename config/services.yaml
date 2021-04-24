@@ -29,3 +29,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\EventSubscriber\ActivitySubscriber :
+        class: 'App\EventSubscriber\ActivitySubscriber'
+        arguments: ['@doctrine.orm.entity_manager', '@security.authorization_checker']
+        tags:
+            - { name: 'kernel.event_subscriber'}
+
+    App\EventSubscriber\ComicSubscriber :
+        class: 'App\EventSubscriber\ComicSubscriber'
+        tags:
+            - { name: 'kernel.event_subscriber'}

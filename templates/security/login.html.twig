@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+<form method="post">
+    {% if error %}
+        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    {% if app.user %}
+        <div class="alert alert-secondary" role="alert">
+            <button class="close" data-dismiss="alert" type="button" aria-label="Close">
+                <i class="fat fa-times"></i>
+            </button>
+            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% endif %}
+    <div class="w-full mw-full d-flex position-relative">
+        <div class="card m-auto position-fixed centered">
+            <div class="navbar-brand">
+                <i class="fad fa-alien-monster mr-5"></i>
+                MiDia
+            </div>
+            <h2 class="card-title">Please sign in</h2>
+            <label for="inputUsername">Username</label>
+            <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" required autofocus>
+            <label for="inputPassword">Password</label>
+            <input type="password" name="password" id="inputPassword" class="form-control" required>
+            <div class="d-flex">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <div class="custom-switch m-10">
+                        <input type="checkbox" id="switch-1" name="_remember_me">
+                        <label for="switch-1">
+                             Remember me
+                        </label>
+                    </div>
+
+                <button class="btn btn-lg btn-primary" type="submit">
+                    Sign in
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

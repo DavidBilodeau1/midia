@@ -1,0 +1,13 @@
+{% for users in online_users %}
+{% if users.isActiveNow() %}
+<button data-toggle="tooltip" data-title="{{ users.username }}" data-placement="bottom" class="mr-10 btn btn-square btn-danger rounded-circle user-{{ users.id }} overflow-visible" data-color-id="{{ users.id }}">{{ users.username|first|upper }}</button>
+<div class="dropdown with-arrow mr-10 hidden-sm-and-down">
+    <button class="btn" data-toggle="dropdown" type="button" id="dropdown-toggle-btn-1">{{users.username}}<i class="fat fa-angle-down ml-5" aria-hidden="true"></i></button>
+    <div class="dropdown-menu d-flex flex-column" aria-labelledby="dropdown-toggle-btn-1">
+      <a class="btn btn-link" href="#">Mon profil</a>
+      <a class="btn btn-link" href="#">Favoris</a>
+      <a class="btn btn-link" href="{{path('app_logout')}}">Déconnexion</a>
+    </div>
+</div>
+{% endif %}
+{% endfor %}

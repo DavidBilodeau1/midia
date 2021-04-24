@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+<nav class="mt-10 ml-20 d-flex">
+  <ul class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{path('home')}}">Accueil</a></li>
+    <li class="breadcrumb-item active"><a href="{{path('books')}}">Livres</a></li>
+  </ul>
+</nav>
+    <div class="container-fluid">
+
+        {% for bookRow in books|batch(5, '') %}
+        <div class="row d-sm-and-down-flex">
+            {% for book in bookRow %}
+                <div class="col books d-flex position-relative">
+                    <div class="m-auto" data-toggle="tooltip" data-title="{{book.title ? book.title : book.name}}" data-placement="top">
+                        <a class="book z-50" href="{{path('book',{book_id : book.id})}}">
+                          <div class="cover" >
+                            <p>{{ book.title ? book.title : book.name }}</p>
+                          </div>
+                      </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    {% block pagination %}
+        {{parent()}}
+    {% endblock %}
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{ asset('js/modernizr.js') }}"></script>
+{% endblock %}

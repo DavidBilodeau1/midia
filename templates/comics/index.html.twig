@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+<nav class="mt-10 ml-20 d-flex">
+  <ul class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{path('home')}}">Accueil</a></li>
+    <li class="breadcrumb-item active"><a href="{{path('series')}}">Séries de comics</a></li>
+  </ul>
+  <a href="{{path('getComicsInfos')}}" class="btn btn-square btn-primary rounded-circle position-absolute right-0 mr-20" role="button"><i class="fas fa-download"></i></a>
+</nav>
+    <div class="container-fluid">
+            {% for series in comics %}
+                {% if loop.index % 3 == 1 %}
+                    <div class="row">
+                {% endif %}
+                        <div class="col-6 col-sm-4 col-md-4 col-lg-4">
+                            <div class="dropdown dropleft with-arrow options position-absolute">
+                                <a href="#" onclick="(event) => {event.stopPropagation();}" data-toggle="dropdown" id="avatar-popover-toggle" class=" btn btn-square btn-primary rounded-circle" role="button">
+                                 <i class="fal fa-ellipsis-h"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-center" aria-labelledby="avatar-popover-toggle">
+                                    <a href="#modal-1" class="btn btn-transparent btn-correct-assoc" data-serie-id="{{series.id}}" role="button">Corriger l'association</a>
+                                </div>
+                            </div>
+                          <div class="m-20" onclick="window.location.href = '{{path('comics',{series_id: series.id})}}'">
+                             <img src="{{ series.image }}" class="w-full"/>
+                            <p class="text-center" style="">{{ series.title }}</p>
+                          </div>
+                      </div>
+                {% if loop.index % 3 == 0 or loop.last == loop.index %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+    </div>
+    {% block pagination %}
+        {{parent()}}
+    {% endblock %}
+    {% block modal %}
+        <div class="modal position-fixed" id="modal-1" data-page="{{page}}" tabindex="-1" role="dialog">
+          <div class="modal-dialog position-relative" role="document">
+            <div class="modal-content">
+              <a href="#" class="btn close position-absolute" role="button" aria-label="Close">
+                <i class="fat fa-times"></i>
+              </a>
+              <h5 class="modal-title">Associer</h5>
+              <input type="text" name="query" class="form-control mb-10" placeholder="Rechercher..." />
+              <div class="collapse-group w-500 mw-full mb-10">
+              </div>
+              <input id="seriesId" class="series-id" type="hidden" name="seriesId" />
+              <div class="actions d-flex">
+                  <button id="searchButton" class="btn btn-square" type="button"><i class="fad fa-search"></i></button>
+                  <button class="btn btn-secondary" id="submit" type="button" disabled="disabled">Envoyer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    {% endblock %}
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+        <script>
+            document.getElementById('searchButton').addEventListener('click', function(event){
+                var seriesId = event.target.closest('#modal-1').querySelector('.series-id').value;
+                var queryText = event.target.closest('#modal-1').querySelector('[name="query"]').value;
+                var AjaxUrl = '{{path('getMatches', {series_id : 'seriesId', query: 'querytext'})}}';
+                AjaxUrl = AjaxUrl.replace('seriesId', seriesId);
+                AjaxUrl = AjaxUrl.replace('querytext', queryText);
+                $.ajax({
+                    url: AjaxUrl,
+                    success: function(result){
+                        var results = result;
+                        results.forEach((match, i) => {
+                            if(i < 6){
+                                addResult(match);
+                                addResultEvent();
+                            }
+                        });
+                        document.getElementById('submit').addEventListener('click', function(){
+                            var resultVal = document.querySelector('summary.collapse-header.bg-primary').closest('.matching-result').getAttribute('data-result');
+                            var seriesId = document.querySelector('#modal-1 .series-id').value;
+                            var page = document.querySelector('#modal-1').getAttribute('data-page');
+                            var AjaxUrl = '{{path('correctMatch', {series_id : 'seriesId', page: 'pageNumber'})}}';
+                            AjaxUrl = AjaxUrl.replace('seriesId', seriesId);
+                            AjaxUrl = AjaxUrl.replace('pageNumber', page);
+                            $.ajax({
+                                url: AjaxUrl,
+                                data: {
+                                    result: resultVal
+                                },
+                                method: 'POST',
+                                success: function(result){
+                                    location.reload();
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+        </script>
+{% endblock %}
